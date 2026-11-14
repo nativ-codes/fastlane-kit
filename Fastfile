@@ -1,5 +1,5 @@
-# Shared deploy lanes. Lives in <project>/fastlane/kit/ and is imported from <project>/fastlane/Fastfile:
-#   import("./kit/Fastfile")
+# Shared deploy lanes. Installed as a package and imported from <project>/fastlane/Fastfile:
+#   import("../node_modules/fastlane-kit/Fastfile")
 #
 #   fastlane deploy platform:ios stage:dev
 #   fastlane deploy platform:android stage:prod bump:minor
@@ -7,7 +7,7 @@
 #   fastlane play_key          # one-time: create the Play service account JSON key (gcloud)
 #
 # Everything else is in <project>/fastlane/ too:
-#   .env.deploy + .env.<stage>      config (gitignored, see kit/.env.example)
+#   .env.deploy + .env.<stage>      config (gitignored, see node_modules/fastlane-kit/.env.example)
 #   keys/                           key files (gitignored)
 #   versioning/.<platform>-versions committed
 require "dotenv"
