@@ -99,7 +99,7 @@ Run all of them from `<project>/fastlane`.
 | Command | When | What it does |
 |---|---|---|
 | `fastlane deploy platform:<ios\|android> stage:<name>` | Every release | Versions, builds, signs, uploads, commits and tags. |
-| `fastlane check platform:<ios\|android> stage:<name>` | Anytime | Checks env vars, keys, tools, git state, the ASC key, certificates and profiles. Builds nothing. |
+| `fastlane check platform:<ios\|android> stage:<name>` | Anytime | Builds nothing. Checks env vars, key files, tools and git state, then proves access works. iOS: calls App Store Connect and runs read-only `match`. Android: unlocks the keystore with `keytool` and calls the Play API for your package and track. |
 | `fastlane certs stage:<name>` | Once per stage, before the first iOS deploy | Creates any missing iOS certificates and profiles in your match repo. |
 | `fastlane play_key [project:<gcp-id>]` | Once, before the first Android deploy | Creates a Play service account and its JSON key with `gcloud`. Then invite the printed email in Play Console > Users and permissions. |
 

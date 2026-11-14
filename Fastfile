@@ -95,7 +95,7 @@ end
 
 # Everything a deploy needs, checked before the slow steps. Returns the ASC api key (iOS).
 def kit_preflight!(platform, root, keys, versions_file:, git:)
-  missing_tools = (platform == "ios" ? %w[yarn pod xcodebuild] : %w[yarn]).reject { |t| system("command -v #{t} >/dev/null 2>&1") }
+  missing_tools = (platform == "ios" ? %w[yarn pod xcodebuild] : %w[yarn keytool]).reject { |t| system("command -v #{t} >/dev/null 2>&1") }
   UI.user_error!("Missing tools on PATH: #{missing_tools.join(", ")}") if missing_tools.any?
   if git && !system("git", "-C", File.dirname(versions_file), "ls-files", "--error-unmatch", versions_file, out: File::NULL, err: File::NULL)
     UI.user_error!("#{versions_file} is not committed; commit fastlane/ first or pass skip_git:true")
@@ -106,6 +106,14 @@ def kit_preflight!(platform, root, keys, versions_file:, git:)
     [ENV["ANDROID_KEYSTORE_FILE"] || "release.keystore", ENV["PLAY_JSON_KEY_FILE"] || "play-service-account.json"].each do |f|
       UI.user_error!("Missing #{File.join(keys, f)}") unless File.exist?(File.join(keys, f))
     end
+    # Wrong password/alias fails here, not mid-build. Doesn't verify ANDROID_KEY_PASSWORD if it differs from the store password.
+    keystore = File.join(keys, ENV["ANDROID_KEYSTORE_FILE"] || "release.keystore")
+    unless system("keytool", "-list", "-keystore", keystore, "-storepass", ENV["ANDROID_KEYSTORE_PASSWORD"], "-alias", ENV["ANDROID_KEY_ALIAS"], out: File::NULL, err: File::NULL)
+      UI.user_error!("ANDROID_KEYSTORE_PASSWORD or ANDROID_KEY_ALIAS is wrong for #{keystore}")
+    end
+    # A real Play API call: proves the key works, the account is invited, and it can see the app and track.
+    google_play_track_version_codes(package_name: ENV["ANDROID_PACKAGE"], track: ENV["PLAY_TRACK"] || "internal",
+                                    json_key: File.join(keys, ENV["PLAY_JSON_KEY_FILE"] || "play-service-account.json"))
     UI.success("Preflight ok: android")
     return nil
   end
