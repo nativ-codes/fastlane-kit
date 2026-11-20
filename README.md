@@ -130,7 +130,7 @@ deploy platform:ios stage:dev
   ├─ 2. Next version     read versioning/.ios-versions  →  999.99 (4)
   ├─ 3. Check            env, keys, tools, clean git, certs/profiles
   ├─ 4. Build            iOS: app.json → prebuild → pod install → match → build
-  │                      Android: Gradle gets version + signing as properties
+  │                      Android: app.json → prebuild → Gradle gets version + signing as properties
   ├─ 5. Upload           TestFlight / App Store, or Google Play
   └─ 6. Save             write the versions file, commit, push, tag dev_v999.99_4_ios
 ```
@@ -180,9 +180,9 @@ After an upload the kit commits the file and tags it `<stage>_v<version>_<build>
 
 ### Android
 
-The config plugin rewrites `android/app/build.gradle` during `expo prebuild` so that `versionCode`, `versionName` and release signing come from Gradle properties. The lane passes those properties at build time, so no secret ever lands in `build.gradle`. Without them, local builds keep the defaults and debug signing.
+The config plugin rewrites `android/app/build.gradle` during `expo prebuild` so that `versionCode`, `versionName` and release signing come from Gradle properties. The lane runs `yarn prebuild --platform android` first, so the native project matches `app.json`, then passes those properties at build time, so no secret ever lands in `build.gradle`. Without them, local builds keep the defaults and debug signing.
 
-The lane builds an AAB and uploads it to Play on the `internal` track as a `draft` by default.
+The lane builds an AAB, uploads it to Play on the `internal` track and rolls the release out to your internal testers (`completed`). Set `PLAY_RELEASE_STATUS=draft` to roll it out yourself in Play Console instead. A Play app that has never been published only accepts `draft`.
 
 ---
 
@@ -211,7 +211,7 @@ Copy `node_modules/fastlane-kit/.env.example` to `fastlane/.env.deploy`. Key fil
 | `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | Upload key |
 | `PLAY_JSON_KEY_FILE` | Default `play-service-account.json` |
 | `PLAY_TRACK` | Default `internal` |
-| `PLAY_RELEASE_STATUS` | Default `draft` |
+| `PLAY_RELEASE_STATUS` | Default `completed` (rolled out to testers). `draft` leaves it for you to roll out. |
 
 ---
 

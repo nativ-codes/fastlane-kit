@@ -270,6 +270,9 @@ private_lane :kit_android do |o|
   root, keys = o[:root], o[:keys]
   android_dir = File.join(root, "android")
 
+  # Same as iOS: regenerate the native project so app.json and config plugins reach the build.
+  sh("cd '#{root}' && yarn prebuild --platform android")
+
   # Avoid `gradlew clean`: with the New Architecture it re-runs CMake after codegen
   # dirs are gone and fails. Wiping outputs on disk has the same effect.
   sh("rm -rf '#{android_dir}/app/.cxx' '#{android_dir}/app/build' '#{android_dir}/build'")
@@ -294,7 +297,7 @@ private_lane :kit_android do |o|
     package_name: o[:package],
     json_key: File.join(keys, ENV["PLAY_JSON_KEY_FILE"] || "play-service-account.json"),
     track: ENV["PLAY_TRACK"] || "internal",
-    release_status: ENV["PLAY_RELEASE_STATUS"] || "draft",
+    release_status: ENV["PLAY_RELEASE_STATUS"] || "completed",
     aab: lane_context[SharedValues::GRADLE_AAB_OUTPUT_PATH],
     skip_upload_metadata: true,
     skip_upload_changelogs: true,
