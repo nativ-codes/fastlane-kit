@@ -1,5 +1,3 @@
-const { withAndroidManifest } = require("expo/config-plugins");
-
 // orientation: "portrait" makes Android imply a *required* android.hardware.screen.portrait,
 // which Play uses to hide the app from tablets/desktop/XR. Declaring it optional keeps the lock
 // but drops the install restriction.
@@ -14,6 +12,8 @@ function addOptionalPortrait(manifest) {
 }
 
 module.exports = function withOptionalPortrait(config) {
+  // Required here, not at the top: expo is a peer dep, so the kit's own tests run without it.
+  const { withAndroidManifest } = require("expo/config-plugins");
   return withAndroidManifest(config, (config) => {
     addOptionalPortrait(config.modResults.manifest);
     return config;
