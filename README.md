@@ -8,12 +8,13 @@ bundle exec fastlane deploy platform:ios stage:dev
 
 That one line picks the next version, prebuilds the native project, signs it, builds it, uploads it, then commits and tags the new version. Every app that installs the kit gets the same lanes, so you set up deploys once and reuse them everywhere.
 
-It ships two pieces:
+It ships these pieces:
 
 | Piece | What it does |
 |---|---|
 | `Fastfile` | The fastlane lanes: `deploy`, `check`, `certs`, `play_key`. |
 | `app.plugin.js` | An Expo config plugin that lets the lanes set the Android version and signing at build time. |
+| `optional-portrait.js` | Optional Expo config plugin for portrait-locked apps: stops Play hiding the app from tablets, desktop and XR. |
 
 ---
 
@@ -183,6 +184,12 @@ After an upload the kit commits the file and tags it `<stage>_v<version>_<build>
 The config plugin rewrites `android/app/build.gradle` during `expo prebuild` so that `versionCode`, `versionName` and release signing come from Gradle properties. The lane runs `yarn prebuild --platform android` first, so the native project matches `app.json`, then passes those properties at build time, so no secret ever lands in `build.gradle`. Without them, local builds keep the defaults and debug signing.
 
 The lane builds an AAB, uploads it to Play on the `internal` track and rolls the release out to your internal testers (`completed`). Set `PLAY_RELEASE_STATUS=draft` to roll it out yourself in Play Console instead. A Play app that has never been published only accepts `draft`.
+
+**Portrait-locked apps**: `"orientation": "portrait"` makes Android imply a required `android.hardware.screen.portrait` feature, and Play then blocks review with "Required hardware feature declarations are restricting your app's availability". Add the kit's second plugin to declare that feature optional. The app stays portrait on phones.
+
+```json
+{ "expo": { "plugins": ["fastlane-kit", "fastlane-kit/optional-portrait"] } }
+```
 
 ---
 

@@ -1,14 +1,14 @@
 {
   "name": "fastlane-kit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Shared fastlane deploy lanes + Expo config plugin (stage versioning, iOS match signing, Android keystore signing).",
   "main": "app.plugin.js",
-  "files": ["Fastfile", "versioning.rb", "app.plugin.js", "android-gradle.js", ".env.example"],
+  "files": ["Fastfile", "versioning.rb", "app.plugin.js", "android-gradle.js", "optional-portrait.js", ".env.example"],
   "peerDependencies": {
     "expo": "*"
   },
   "scripts": {
-    "test": "node test/android-gradle.test.js && ruby test/versioning_test.rb"
+    "test": "node test/android-gradle.test.js && node test/optional-portrait.test.js && ruby test/versioning_test.rb"
   }
 }
